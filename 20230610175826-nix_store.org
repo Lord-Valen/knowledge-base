@@ -1,0 +1,5 @@
+:PROPERTIES:
+:ID:       5cfe20a7-9719-4d9a-804e-6e53f5cd45ba
+:END:
+#+title: Nix Store
+#+filetags: :nix:

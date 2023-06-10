@@ -1,0 +1,5 @@
+:PROPERTIES:
+:ID:       a77618ab-7a2e-4208-986a-c9b2ae580c3a
+:END:
+#+title: nixpkgs
+#+filetags: :nix:

@@ -1,0 +1,4 @@
+:PROPERTIES:
+:ID:       ffce2179-2f28-4f1c-ac7a-2ab3f99907b9
+:END:
+#+title: nix-command

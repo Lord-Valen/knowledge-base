@@ -1,0 +1,6 @@
+:PROPERTIES:
+:ID:       99ed96c3-b7be-409b-9cda-27850943802b
+:END:
+#+title: Programming Languages
+
+- [[id:0b96c3ed-3db0-45e6-9ffc-b493c19228d3][Nix Expression Language]]
