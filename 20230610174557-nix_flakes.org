@@ -7,7 +7,7 @@
 /Flakes are an experimental feature of [[id:969658ed-3fd5-488d-b9c5-24cbaf37b6ee][Nix]] and depend on [[id:ffce2179-2f28-4f1c-ac7a-2ab3f99907b9][nix-command]]./
 
 + A =flake= is a directory or repository containing a =flake.nix= file at the
-  toplevel.
+  top level.
 + A =subflake= is a subdirectory of a flake containing a =flake.nix= file.
 
 * Purpose
@@ -42,11 +42,10 @@ schema. It is an attribute set with three (optional) toplevel attributes:
     example = {
       url = "github:owner/repo/v1.0.0"; # This is the github URL type, there are others: https://nixos.org/manual/nix/stable/command-ref/new-cli/nix3-flake.html#types
       flake = true; # Set this to false if the input is not a flake. Defaults to true.
-      # The `follows` keyword causes dependencies to be inherited.
-      # In this case `inputs.nixpkgs` of `example` is overridden
-      # to be consistent with the current flake.
-      # NOTE: This could mean semantic changes, causing packages provided by `example`
-      # not to be substituted by a binary cache.
+      # The `follows` keyword causes dependencies to be inherited. In this case
+      # `inputs.nixpkgs` of `example` is overridden to be consistent with the
+      # current flake. NOTE: This could mean semantic changes, causing packages
+      # provided by `example` not to be substituted by a binary cache.
       inputs.nixpkgs.follows = "nixpkgs";
     };
     # Alternative, though the former is more convenient and idiomatic
@@ -57,7 +56,7 @@ schema. It is an attribute set with three (optional) toplevel attributes:
       ref = "v1.0.0";
       flake = true;
       inputs.nixpkgs.follows = "nixpkgs";
-    }
+    };
   };
 }
 #+end_src
@@ -66,7 +65,7 @@ schema. It is an attribute set with three (optional) toplevel attributes:
 
 While =outputs= technically follows a schema, it's actually arbitrary and the
 output schema is merely a suggestion. The output schema is defined by the
-attributes that [[id:969658ed-3fd5-488d-b9c5-24cbaf37b6ee][Nix]] commands will recognize up front but any other attributes
+attributes that [[id:969658ed-3fd5-488d-b9c5-24cbaf37b6ee][Nix]] commands will recognize up front, but any other attributes
 are still exposed and are still consumable.
 
 #+begin_src nix
@@ -77,18 +76,20 @@ are still exposed and are still consumable.
       default = derivation;
       "<name>" = derivation;
     };
-    # `nix build` will build these and if there is no apps attribute,
-    # `nix run` will build these and attempt to execute a binary
-    # from the result by the name `pname`.
+    # `nix build` will build these and if there is no apps attribute, `nix run`
+    # will build these and attempt to execute a binary from the result by the
+    # name `pname`.
     packages."<system>" = rec {
       default = derivation;
       "<name>" = derivation;
     };
-    # This attribute was made for use by nixpkgs
-    # so that packages are not evaluated up front (or some commands would take a *very* long time).
-    # Somewhat deceptively, this is not called legacyPackages because the packages are old.
+    # This attribute was made for use by nixpkgs so that packages are not
+    # evaluated up front (or some commands would take a *very* long time).
+    # Somewhat deceptively, this is not called legacyPackages because the
+    # packages are old.
     legacyPackages."<system>"."<name>" = derivation;
-    # These are consumables that overlay an attribute set, typically used for nixpkgs overlays (eww).
+    # These are consumables that overlay an attribute set, typically used for
+    # nixpkgs overlays (eww).
     overlays = {
       default = self: super: { };
       "<name>" = self: super: { };
@@ -98,18 +99,20 @@ are still exposed and are still consumable.
       default = {};
       "<name>" = {};
     };
-    # These are nixos configurations.
-    # `nixos-rebuild` will attempt to use one that matches the current system's hostname by default.
+    # These are nixos configurations. `nixos-rebuild` will attempt to use one
+    # that matches the current system's hostname by default.
     nixosConfigurations."<hostname>" = {};
-    # These are used by `nix develop` to enter a reproducible development environment.
+    # These are used by `nix develop` to enter a reproducible development
+    # environment.
     devShells."<system>" = {
       default = derivation;
       "<name>" = derivation;
     };
-    # This is the formatter `nix fmt` will attempt to use to format all nix files.
+    # This is the formatter `nix fmt` will attempt to use to format all nix
+    # files.
     formatter."<system>" = derivation;
-    # `nix flake check` builds these as a basic testing system.
-    # The success condition is build success.
+    # `nix flake check` builds these as a basic testing system. The success
+    # condition is build success.
     checks."<system>"."<name>" = derivation;
   };
 }
@@ -117,7 +120,7 @@ are still exposed and are still consumable.
 
 * Example
 
-This flake reexposes the =hello= package from nixpkgs for x86_64-linux systems.
+This flake re-exposes the =hello= package from nixpkgs for x86_64-linux systems.
 
 #+begin_src nix
 {
