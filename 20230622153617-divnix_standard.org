@@ -1,0 +1,7 @@
+:PROPERTIES:
+:ID:       dd27fcb4-7891-444f-940e-d914a9cba507
+:END:
+#+title: Divnix Standard
+
+std is a framework for supporting software development. Because it is [[id:566c86b0-f2bd-4c17-a572-58cd567dba4e][Paisano]]
+based, many std skills are transferable with [[id:efe5df8b-1a17-41c8-b632-bd8256be5a6c][Hive]].

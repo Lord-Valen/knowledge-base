@@ -1,0 +1,45 @@
+:PROPERTIES:
+:ID:       566c86b0-f2bd-4c17-a572-58cd567dba4e
+:END:
+#+title: Paisano
+
+Paisano is a [[id:bf898853-3080-45c8-a290-4461e1d463b5][flake]] meta-framework. It provides a core system from which
+specialized frameworks can be built. The main feature of Paisano is the model of
+cells and cell blocks. Where flakes defined dependency structure, Paisano
+defines folder structure.
+
+* Model
+** Cell
+
+A cell is the first layer in the structure which groups related blocks together.
+
+*** Cell Block
+
+A block is the second layer in the structure which encapsulates specific
+functionality. Blocks have corresponding block types which determine the actions
+associated with their targets in the Paisano registry. Paisano based frameworks
+will provide their own custom types. A block's type is determined by the file's
+name (or if using a ~default.nix~, the directory's name). Names are associated
+with types in the ~grow~ function.
+
+A Cell block is a nix file which contains data or a function which takes the
+argument ~{inputs, cell}~. This solves the burdensome problem of plumbing as
+everything is accessible from the argument. =inputs= contains (obviously) *all*
+flake inputs, but also contains a special attribute =cells=, which allows access
+to all cells' blocks, grouped by cell. =cell= contains all of the current cell's
+blocks with fully applied arguments (meaning the target is directly accessible).
+
+**** Target
+
+A target of a block is one of its intended outputs.
+
+* Grow
+
+Paisano occupies the entire ~flake.nix~ file with its ~grow~ or ~growOn~
+function. These functions are usually re-exposed by frameworks. ~grow~ takes an
+attrset argument ~{inputs, cellsFrom, cellBlocks}~. ~growOn~ takes the same
+argument and an arbitrary amount of additional arguments. These additional
+arguments are called "layers of soil" which are recursively merged. Soil is used
+to build additional (often conventional) outputs from Paisano targets.
+
+* Registry

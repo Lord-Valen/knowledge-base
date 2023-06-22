@@ -137,6 +137,22 @@ This flake re-exposes the =hello= package from nixpkgs for x86_64-linux systems.
 }
 #+end_src
 
+* Frameworks
+
+Flakes have different practical uses. Usually, they take on primary roles (e.g.
+Nix libraries, packages, modules, nixos configurations) or support roles (e.g.
+devshells, CI). Because of this there are different frameworks meant to make
+flakes easier to use that sometimes don't share transferable skills.
+
+** Nixos Configuration
+
++ [[id:efe5df8b-1a17-41c8-b632-bd8256be5a6c][Hive]]
++ [[id:00554858-d7a1-4762-816a-864b97bff8cc][Digga]]
+
+** Software Development
+
++ [[id:dd27fcb4-7891-444f-940e-d914a9cba507][std]]
+
 * Gotchas
 ** In a version controlled flake, a file is not found despite seemingly existing.
 
