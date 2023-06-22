@@ -138,10 +138,13 @@ This flake re-exposes the =hello= package from nixpkgs for x86_64-linux systems.
 #+end_src
 
 * Gotchas
-+ =In a version controlled flake, a file is not found despite seemingly
-  existing.= This usually occurs because the version control system is not
-  tracking that file. A version controlled flake will only copy the tracked
-  files to the [[id:5cfe20a7-9719-4d9a-804e-6e53f5cd45ba][Nix Store]]; thus, as far as [[id:969658ed-3fd5-488d-b9c5-24cbaf37b6ee][Nix]] is concerned, that file /is/
-  missing.
-+ =Submodules are not present.= By default, submodules are not copied to the [[id:5cfe20a7-9719-4d9a-804e-6e53f5cd45ba][Nix
-  Store]]. This can be overridden by adding ~?submodules=1~ to the URL.
+** In a version controlled flake, a file is not found despite seemingly existing.
+
+This usually occurs because the version control system is not tracking that
+file. A version controlled flake will only copy the tracked files to the [[id:5cfe20a7-9719-4d9a-804e-6e53f5cd45ba][Nix
+Store]]; thus, as far as [[id:969658ed-3fd5-488d-b9c5-24cbaf37b6ee][Nix]] is concerned, that file /is/ missing.
+
+** Submodules are not present.
+
+By default, submodules are not copied to the [[id:5cfe20a7-9719-4d9a-804e-6e53f5cd45ba][Nix Store]]. This can be overridden
+by adding ~?submodules=1~ to the URL.
