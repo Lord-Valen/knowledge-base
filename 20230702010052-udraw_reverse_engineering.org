@@ -1,0 +1,134 @@
+:PROPERTIES:
+:ID:       6601fe38-59cb-4962-aaa1-ac7d14b0a8d7
+:END:
+#+title: uDraw Reverse Engineering
+
+* Protocol
+Report in last 27 bytes of IRQ response
+
+/Little endian/
+/Least significant bit first/
+
+** Initial state
+Dongle is connected but tablet is not.
+
+| 0040 |   | 00 | 00 | 0f | 80 | 80 | 80 | 80 | 00 |   | 00 | 00 | 00 | 00 | 00 | 60 | 00 | 0f |
+|------+---+----+----+----+----+----+----+----+----+---+----+----+----+----+----+----+----+----|
+| 0050 |   | 0f | ff | ff | 00 | 02 | 00 | 02 | 00 |   | 02 | 00 | 02 |    |    |    |    |    |
+
+** Buttons
+The gaps are probably reserved for other PlayStation inputs, e.g. L1, L2, L3,
+R1, R2, R3. This isn't equipped with them though.
+
+*** Byte 0x00
+| Bit   |        3 |      2 |     1 |      0 |
+|-------+----------+--------+-------+--------|
+| State | Triangle | Circle | Cross | Square |
+
+*** Byte 0x01
+| Bit   |    4 |      1 |     0 |
+|-------+------+--------+-------|
+| State | Home | Select | Start |
+
+** D-Pad
+*** Byte 0x02
+| Value |    0x0F | 0x00 |       0x01 |  0x02 |         0x03 | 0x04 |        0x05 | 0x06 |      0x07 |
+|-------+---------+------+------------+-------+--------------+------+-------------+------+-----------|
+| State | Neutral |   Up | Up + Right | Right | Down + Right | Down | Down + Left | Left | Left + Up |
+
+
+*** Bytes 0x07 - 0x0A
+Whole bytes are set to 0xFF. Why do this when we have Byte 0x02? It adds 4 bytes
+for nothing... Theory: 0x02 is derived from these by the dongle and all tablet
+data is passed through, resulting in some garbage data.
+
+| Byte  |  0x07 | 0x08 | 0x09 | 0x0A |
+|-------+-------+------+------+------|
+| State | Right | Left |   Up | Down |
+
+** Digitizer
+*** Byte 0x0B - 0x0C
+This communicates the type of detection
++ For Pinch Data, byte 0x0B seems related to rotation, 0x0C seems related to
+  distance. There is probably trigonometry involved.
+| Value | 0x0000 | 0x4000 |     0x8000 | Anything Else |
+|-------+--------+--------+------------+---------------|
+| State |   Idle |    Pen | One Finger | Pinch Data    |
+
+*** Byte 0x0F - 0x12
+Position data
+The digitizer space is broken up into a grid, 0x0F and 0x10 describe the grid
+square of the touch point. 0x11 and 0x12 describe the position of the touch
+point relative to the top left corner of the grid square in px.
+
+A grid square is 256px x 256px but since 1920x1080 doesn't divide into blocks of
+that size, the last rows and columns will never reach 256.
+
++ Absolute X: Row * 256 + X
++ Absolute Y: Column * 256 + Y
+
+| Byte | 0x0F |   0x10 | 0x11 | 0x12 |
+|------+------+--------+------+------|
+| Data |  Row | Column |    X |    Y |
+
+When there is no value, bytes 0x0F and 0x10 have value 0x0F and bytes 0x11 and
+0x12 have value 0xFF
+
+** Pen Pressure Sensor
+*** Byte 0x0D
++ My device reports a minimum of 0x6E (now 0x6F)
++ 256-110 = 146 possible pressure values
+  + I've seen reports of different minimum pressure values, so there may be
+    different ranges across devices.
+  + After tinkering, I managed to *raise* the minimum value on my own device.
+    The mechanism is not reliable, cleaning may help. Raising the threshold may
+    improve reliability but reduces pressure resolution.
+    + Cleaning restored performance, thresholding at 128 is advisable because 128 is a nice number :)
++ Could be used to determine connection status
++ x > y, y >= 96: Pressure% = 1 + x - y / (256 - y) * 100
+  + x is the value of byte 0x0D
+  + y is a defined threshold
+
+| Value | 0x60 | x > 0x60 |
+|-------+------+----------|
+| Data  | Idle | Pressure |
+
+** Accelerometer
+Each axis is described by a pair of bytes. The first byte gives the amount of
+tilt ranging from 0x00 to 0xFF. The second byte gives the sign or direction.
+
+*** X Axis
++ Left: 0x01
++ Right: 0x02
+
+| Byte |   0x13 | 0x14 |
+|------+--------+------|
+| Data | Amount | Sign |
+
+*** Y Axis
++ Away: 0x01
++ Toward: 0x02
+
+| Byte |   0x15 | 0x16 |
+|------+--------+------|
+| Data | Amount | Sign |
+
+*** Z Axis
++ Facing up: 0x01
++ Facing down: 0x02
+
+| Byte |   0x17 | 0x18 |
+|------+--------+------|
+| Data | Amount | Sign |
+
+** Unknown
+*** Bytes 0x03 - 0x06
+Always each 0x80
++ There are four LEDs to indicate controller number, related?
+
+*** Byte 0x0E
+
+*** Bytes 0x19 and 0x1A
+Always 0x00 and 0x02
++ Same format as the axial pairings
++ Defines the neutral value?
