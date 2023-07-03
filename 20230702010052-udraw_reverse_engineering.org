@@ -21,20 +21,20 @@ The gaps are probably reserved for other PlayStation inputs, e.g. L1, L2, L3,
 R1, R2, R3. This isn't equipped with them though.
 
 *** Byte 0x00
-| Bit   |        3 |      2 |     1 |      0 |
-|-------+----------+--------+-------+--------|
-| State | Triangle | Circle | Cross | Square |
+| Bit  |        3 |      2 |     1 |      0 |
+|------+----------+--------+-------+--------|
+| Data | Triangle | Circle | Cross | Square |
 
 *** Byte 0x01
-| Bit   |    4 |      1 |     0 |
-|-------+------+--------+-------|
-| State | Home | Select | Start |
+| Bit  |    4 |      1 |     0 |
+|------+------+--------+-------|
+| Data | Home | Select | Start |
 
 ** D-Pad
 *** Byte 0x02
 | Value |    0x0F | 0x00 |       0x01 |  0x02 |         0x03 | 0x04 |        0x05 | 0x06 |      0x07 |
 |-------+---------+------+------------+-------+--------------+------+-------------+------+-----------|
-| State | Neutral |   Up | Up + Right | Right | Down + Right | Down | Down + Left | Left | Left + Up |
+| Data  | Neutral |   Up | Up + Right | Right | Down + Right | Down | Down + Left | Left | Left + Up |
 
 
 *** Bytes 0x07 - 0x0A
@@ -42,18 +42,38 @@ Whole bytes are set to 0xFF. Why do this when we have Byte 0x02? It adds 4 bytes
 for nothing... Theory: 0x02 is derived from these by the dongle and all tablet
 data is passed through, resulting in some garbage data.
 
-| Byte  |  0x07 | 0x08 | 0x09 | 0x0A |
-|-------+-------+------+------+------|
-| State | Right | Left |   Up | Down |
+| Byte |  0x07 | 0x08 | 0x09 | 0x0A |
+|------+-------+------+------+------|
+| Data | Right | Left |   Up | Down |
 
 ** Digitizer
-*** Byte 0x0B - 0x0C
-This communicates the type of detection
-+ For Pinch Data, byte 0x0B seems related to rotation, 0x0C seems related to
-  distance. There is probably trigonometry involved.
-| Value | 0x0000 | 0x4000 |     0x8000 | Anything Else |
-|-------+--------+--------+------------+---------------|
-| State |   Idle |    Pen | One Finger | Pinch Data    |
+*** Byte 0x0B
+| Bit  |        7 |        6 |      4-5 |   0-3 |
+|------+----------+----------+----------+-------|
+| Data | Finger 1 | Finger 2 | Quadrant | Angle |
+
++ Bits 0-3 describe the angle to the second finger. 0x00 is the X axis. 0x08 is
+  the Y axis. It would take too much patience to figure out how these are interpolated. Just use linear interpolation or a circle.
++ Bits 4-5 describe the quadrant of the second finger relative to the first finger counting counter-clockwise
+
+*** Byte 0x0C
+Finger distance (unknown unit and scale)
+
++ Maxes out somewhere before full diagonal length of the digitizer but users
+  aren't likely to do this in practice.
++ You could probably calculate the true scale after observing how much the
+  midpoint travels after the distance is maxed. Constrain the first finger to a
+  corner, move the second finger from near the first finger toward the opposing
+  corner. Note the position of the midpoint when the distance is maxed.
+  Constrain the second finger to the opposing corner. Note the position of the
+  new midpoint (you should already know this as the center). Find the scaling
+  constant that would map one midpoint onto the other. This suffers from the
+  imprecision of finger placement since it depends on constraining a line to the
+  diagonal. Since this theoretically works, it's probably in px. The upscaled
+  value would be quantized anyway and thus not very useful. Just pick an
+  arbitrary scale (or no scale, you probably only care about the change in
+  midpoint position for swipe gestures and the change in distance for pinch
+  gestures).
 
 *** Byte 0x0F - 0x12
 Position data
@@ -71,8 +91,8 @@ that size, the last rows and columns will never reach 256.
 |------+------+--------+------+------|
 | Data |  Row | Column |    X |    Y |
 
-When there is no value, bytes 0x0F and 0x10 have value 0x0F and bytes 0x11 and
-0x12 have value 0xFF
++ With two fingers, this is the midpoint between them.
++ When there is no value, bytes 0x0F and 0x10 have value 0x0F and bytes 0x11 and 0x12 have value 0xFF.
 
 ** Pen Pressure Sensor
 *** Byte 0x0D
