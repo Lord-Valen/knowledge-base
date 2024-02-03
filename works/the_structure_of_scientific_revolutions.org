@@ -1,0 +1,6 @@
+:PROPERTIES:
+:ID:       0f6157db-4431-4521-83a3-3b684b966830
+:END:
+#+title: The Structure of Scientific Revolutions
+#+author: [[id:8cf71070-3efa-40f9-a038-34d73b30b496][Thomas S. Kuhn]]
+#+filetags: 📜
